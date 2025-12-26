@@ -1,0 +1,1 @@
+# intricare-frontend-developer-task
