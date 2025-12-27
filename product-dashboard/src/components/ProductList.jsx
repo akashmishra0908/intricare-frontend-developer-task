@@ -25,7 +25,13 @@ const ProductList = ({ products, onEdit, onDelete }) => {
             <TableBody>
                 {products.length > 0 ? (
                     products.map((product) => (
-                        <TableRow key={product.id}>
+                        <TableRow key={product.id}
+                            sx={{
+                                "&:nth-of-type(odd)": {
+                                    backgroundColor: "#f5f5f5",
+                                },
+                            }}
+                        >
                             <TableCell>{product.title}</TableCell>
                             <TableCell>${product.price}</TableCell>
                             <TableCell>{product.category}</TableCell>
