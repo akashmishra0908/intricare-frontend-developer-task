@@ -7,6 +7,7 @@ import {
   CircularProgress,
   Alert,
   Stack,
+  Snackbar
 } from "@mui/material";
 
 import {
@@ -31,6 +32,12 @@ function App() {
     fetchProducts();
   }, []);
 
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+
   const fetchProducts = async () => {
     try {
       setLoading(true);
@@ -44,24 +51,61 @@ function App() {
   };
 
   const handleSave = async (product) => {
-    if (selectedProduct) {
-      await updateProduct(selectedProduct.id, product);
-      setProducts((prev) =>
-        prev.map((p) =>
-          p.id === selectedProduct.id ? { ...product, id: p.id } : p
-        )
-      );
-    } else {
-      const res = await addProduct(product);
-      setProducts([...products, res.data]);
+    try {
+      if (selectedProduct) {
+        await updateProduct(selectedProduct.id, product);
+
+        setProducts((prev) =>
+          prev.map((p) =>
+            p.id === selectedProduct.id ? { ...product, id: p.id } : p
+          )
+        );
+
+        setSnackbar({
+          open: true,
+          message: "Product updated successfully",
+          severity: "success",
+        });
+      } else {
+        const res = await addProduct(product);
+        setProducts([...products, res.data]);
+
+        setSnackbar({
+          open: true,
+          message: "Product added successfully",
+          severity: "success",
+        });
+      }
+
+      closeDialog();
+    } catch {
+      setSnackbar({
+        open: true,
+        message: "Something went wrong",
+        severity: "error",
+      });
     }
-    closeDialog();
   };
 
   const handleDelete = async (id) => {
-    await deleteProduct(id);
-    setProducts(products.filter((p) => p.id !== id));
-    if (selectedProduct?.id === id) closeDialog();
+    try {
+      await deleteProduct(id);
+      setProducts(products.filter((p) => p.id !== id));
+
+      if (selectedProduct?.id === id) closeDialog();
+
+      setSnackbar({
+        open: true,
+        message: "Product deleted successfully",
+        severity: "success",
+      });
+    } catch {
+      setSnackbar({
+        open: true,
+        message: "Failed to delete product",
+        severity: "error",
+      });
+    }
   };
 
   const closeDialog = () => {
@@ -110,6 +154,20 @@ function App() {
         onSubmit={handleSave}
         selectedProduct={selectedProduct}
       />
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          severity={snackbar.severity}
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Container>
   );
 }
