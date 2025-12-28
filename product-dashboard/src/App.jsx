@@ -7,7 +7,8 @@ import {
   CircularProgress,
   Alert,
   Stack,
-  Snackbar
+  Snackbar,
+  MenuItem
 } from "@mui/material";
 
 import {
@@ -27,6 +28,7 @@ function App() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [category, setCategory] = useState("all");
 
   useEffect(() => {
     fetchProducts();
@@ -113,9 +115,17 @@ function App() {
     setOpen(false);
   };
 
-  const filteredProducts = products.filter((p) =>
-    p.title.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredProducts = products.filter((product) => {
+    const matchesSearch =
+      product.title.toLowerCase().includes(search.toLowerCase()) ||
+      product.category.toLowerCase().includes(search.toLowerCase());
+
+    const matchesCategory =
+      category === "all" || product.category === category;
+
+    return matchesSearch && matchesCategory;
+  });
+
 
   return (
     <Container sx={{ mt: 4 }}>
@@ -125,15 +135,27 @@ function App() {
           Add Product
         </Button>
       </Stack>
-
-      <TextField
-        fullWidth
-        placeholder="Search product..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        sx={{ mb: 2 }}
-      />
-
+      <Stack direction="row" justifyContent="space-between" gap={2}>
+        <TextField
+          fullWidth
+          placeholder="Search product..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          sx={{ mb: 2 }}
+        />
+        <TextField
+          select
+          label="Filter by Category"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          fullWidth
+          sx={{ mb: 2 }}
+        >
+          <MenuItem value="all">All</MenuItem>
+          <MenuItem value="men's clothing">Men's Clothing</MenuItem>
+          <MenuItem value="women's clothing">Women's Clothing</MenuItem>
+        </TextField>
+      </Stack>
       {loading && <CircularProgress />}
       {error && <Alert severity="error">{error}</Alert>}
 
