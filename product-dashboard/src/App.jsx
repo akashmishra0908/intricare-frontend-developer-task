@@ -8,7 +8,8 @@ import {
   Alert,
   Stack,
   Snackbar,
-  MenuItem
+  MenuItem,
+  TablePagination
 } from "@mui/material";
 
 import {
@@ -30,10 +31,15 @@ function App() {
   const [error, setError] = useState(null);
   const [category, setCategory] = useState("all");
   const [sortBy, setSortBy] = useState("default");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   useEffect(() => {
     fetchProducts();
   }, []);
+  useEffect(() => {
+    setPage(0);
+  }, [search, category, sortBy]);
 
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -192,14 +198,31 @@ function App() {
       {error && <Alert severity="error">{error}</Alert>}
 
       {!loading && !error && (
-        <ProductList
-          products={filteredProducts}
-          onEdit={(p) => {
-            setSelectedProduct(p);
-            setOpen(true);
-          }}
-          onDelete={handleDelete}
-        />
+        <>
+          <ProductList
+            products={filteredProducts.slice(
+              page * rowsPerPage,
+              page * rowsPerPage + rowsPerPage
+            )}
+            onEdit={(p) => {
+              setSelectedProduct(p);
+              setOpen(true);
+            }}
+            onDelete={handleDelete}
+          />
+          <TablePagination
+            component="div"
+            count={filteredProducts.length}
+            page={page}
+            onPageChange={(e, newPage) => setPage(newPage)}
+            rowsPerPage={rowsPerPage}
+            onRowsPerPageChange={(e) => {
+              setRowsPerPage(parseInt(e.target.value, 10));
+              setPage(0);
+            }}
+            rowsPerPageOptions={[5, 10, 25]}
+          />
+        </>
       )}
 
       <ProductForm
