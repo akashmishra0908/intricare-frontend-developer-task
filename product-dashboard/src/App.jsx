@@ -29,6 +29,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [category, setCategory] = useState("all");
+  const [sortBy, setSortBy] = useState("default");
 
   useEffect(() => {
     fetchProducts();
@@ -125,7 +126,12 @@ function App() {
       category === "all" || product.category === category;
 
     return matchesSearch && matchesCategory;
-  });
+  })
+    .sort((a, b) => {
+      if (sortBy === "priceLowHigh") return a.price - b.price;
+      if (sortBy === "priceHighLow") return b.price - a.price;
+      return 0;
+    });
 
 
   return (
@@ -159,6 +165,28 @@ function App() {
             </MenuItem>
           ))}
         </TextField>
+        <TextField
+          select
+          label="Sort by"
+          value={sortBy}
+          onChange={(e) => setSortBy(e.target.value)}
+          sx={{ mb: 2, minWidth: 200 }}
+        >
+          <MenuItem value="default">Default</MenuItem>
+          <MenuItem value="priceLowHigh">Price: Low to High</MenuItem>
+          <MenuItem value="priceHighLow">Price: High to Low</MenuItem>
+        </TextField>
+        <Button
+          variant="outlined"
+          onClick={() => {
+            setSearch("");
+            setCategory("all");
+            setSortBy("default");
+          }}
+          sx={{ mb: 2, height: 56 }}
+        >
+          Reset
+        </Button>
       </Stack>
       {loading && <CircularProgress />}
       {error && <Alert severity="error">{error}</Alert>}
