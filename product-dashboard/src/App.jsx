@@ -9,8 +9,18 @@ import {
   Stack,
   Snackbar,
   MenuItem,
-  TablePagination
+  TablePagination,
+  IconButton,
+  Menu,
+  Box,
+  useMediaQuery,
+  useTheme
 } from "@mui/material";
+
+import FilterListIcon from '@mui/icons-material/FilterList';
+import SortIcon from '@mui/icons-material/Sort';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import AddIcon from '@mui/icons-material/Add';
 
 import {
   getProducts,
@@ -33,6 +43,12 @@ function App() {
   const [sortBy, setSortBy] = useState("default");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const [anchorElFilter, setAnchorElFilter] = useState(null);
+  const [anchorElSort, setAnchorElSort] = useState(null);
 
   useEffect(() => {
     fetchProducts();
@@ -142,58 +158,110 @@ function App() {
 
   return (
     <Container sx={{ mt: 4 }}>
-      <Stack direction="row" justifyContent="space-between" mb={2}>
-        <Typography variant="h5">Product Dashboard</Typography>
-        <Button variant="contained" onClick={() => setOpen(true)}>
-          Add Product
+      <Stack direction="row" justifyContent="space-between" mb={2} alignItems="center">
+        <Typography variant="h5">
+          {isMobile ? "Products" : "Product Dashboard"}
+        </Typography>
+        <Button
+          variant="contained"
+          onClick={() => setOpen(true)}
+          startIcon={!isMobile && <AddIcon />}
+          sx={{ minWidth: isMobile ? 40 : 64, px: isMobile ? 1 : 2 }}
+        >
+          {isMobile ? <AddIcon /> : "Add Product"}
         </Button>
       </Stack>
-      <Stack direction="row" justifyContent="space-between" gap={2}>
+      <Box sx={{ mb: 2 }}>
         <TextField
           fullWidth
           placeholder="Search product..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          sx={{ mb: 2 }}
+          sx={{ mb: isMobile ? 1 : 2 }}
         />
-        <TextField
-          select
-          label="Filter by Category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          fullWidth
-          sx={{ mb: 2 }}
-        >
-          <MenuItem value="all">All</MenuItem>
-          {[...new Set(products.map((p) => p.category))].map((cat) => (
-            <MenuItem key={cat} value={cat}>
-              {cat}
-            </MenuItem>
-          ))}
-        </TextField>
-        <TextField
-          select
-          label="Sort by"
-          value={sortBy}
-          onChange={(e) => setSortBy(e.target.value)}
-          sx={{ mb: 2, minWidth: 200 }}
-        >
-          <MenuItem value="default">Default</MenuItem>
-          <MenuItem value="priceLowHigh">Price: Low to High</MenuItem>
-          <MenuItem value="priceHighLow">Price: High to Low</MenuItem>
-        </TextField>
-        <Button
-          variant="outlined"
-          onClick={() => {
-            setSearch("");
-            setCategory("all");
-            setSortBy("default");
-          }}
-          sx={{ mb: 2, height: 56 }}
-        >
-          Reset
-        </Button>
-      </Stack>
+
+        {isMobile ? (
+          <Stack direction="row" spacing={1} justifyContent="flex-end">
+            <IconButton onClick={(e) => setAnchorElFilter(e.currentTarget)}>
+              <FilterListIcon color={category !== 'all' ? 'primary' : 'inherit'} />
+            </IconButton>
+            <Menu
+              anchorEl={anchorElFilter}
+              open={Boolean(anchorElFilter)}
+              onClose={() => setAnchorElFilter(null)}
+              disableScrollLock={true}
+            >
+              <MenuItem onClick={() => { setCategory("all"); setAnchorElFilter(null); }}>All</MenuItem>
+              {[...new Set(products.map((p) => p.category))].map((cat) => (
+                <MenuItem key={cat} onClick={() => { setCategory(cat); setAnchorElFilter(null); }}>
+                  {cat}
+                </MenuItem>
+              ))}
+            </Menu>
+
+            <IconButton onClick={(e) => setAnchorElSort(e.currentTarget)}>
+              <SortIcon color={sortBy !== 'default' ? 'primary' : 'inherit'} />
+            </IconButton>
+            <Menu
+              anchorEl={anchorElSort}
+              open={Boolean(anchorElSort)}
+              onClose={() => setAnchorElSort(null)}
+              disableScrollLock={true}
+            >
+              <MenuItem onClick={() => { setSortBy("default"); setAnchorElSort(null); }}>Default</MenuItem>
+              <MenuItem onClick={() => { setSortBy("priceLowHigh"); setAnchorElSort(null); }}>Price: Low to High</MenuItem>
+              <MenuItem onClick={() => { setSortBy("priceHighLow"); setAnchorElSort(null); }}>Price: High to Low</MenuItem>
+            </Menu>
+
+            <IconButton onClick={() => {
+              setSearch("");
+              setCategory("all");
+              setSortBy("default");
+            }}>
+              <RestartAltIcon />
+            </IconButton>
+          </Stack>
+        ) : (
+          <Stack direction="row" gap={2}>
+            <TextField
+              select
+              label="Filter by Category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              fullWidth
+            >
+              <MenuItem value="all">All</MenuItem>
+              {[...new Set(products.map((p) => p.category))].map((cat) => (
+                <MenuItem key={cat} value={cat}>
+                  {cat}
+                </MenuItem>
+              ))}
+            </TextField>
+            <TextField
+              select
+              label="Sort by"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              sx={{ minWidth: 200 }}
+            >
+              <MenuItem value="default">Default</MenuItem>
+              <MenuItem value="priceLowHigh">Price: Low to High</MenuItem>
+              <MenuItem value="priceHighLow">Price: High to Low</MenuItem>
+            </TextField>
+            <Button
+              variant="outlined"
+              onClick={() => {
+                setSearch("");
+                setCategory("all");
+                setSortBy("default");
+              }}
+              sx={{ height: 56 }}
+            >
+              Reset
+            </Button>
+          </Stack>
+        )}
+      </Box>
       {loading && <CircularProgress />}
       {error && <Alert severity="error">{error}</Alert>}
 
