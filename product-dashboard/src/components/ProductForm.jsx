@@ -45,51 +45,62 @@ const ProductForm = ({ open, onClose, onSubmit, selectedProduct }) => {
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>
-        {selectedProduct ? "Edit Product" : "Add Product"}
-      </DialogTitle>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit();
+        }}
+      >
+        <DialogTitle>
+          {selectedProduct ? "Edit Product" : "Add Product"}
+        </DialogTitle>
 
-      <DialogContent>
-        <Stack spacing={2} mt={1}>
-          <TextField
-            label="Title"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            fullWidth
-          />
-          <TextField
-            label="Price"
-            name="price"
-            value={formData.price}
-            onChange={handleChange}
-            fullWidth
-          />
-          <TextField
-            label="Category"
-            name="category"
-            value={formData.category}
-            onChange={handleChange}
-            fullWidth
-          />
-          <TextField
-            label="Description"
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            fullWidth
-            multiline
-            rows={3}
-          />
-        </Stack>
-      </DialogContent>
+        <DialogContent>
+          <Stack spacing={2} mt={1}>
+            <TextField
+              label="Title"
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+              fullWidth
+              required
+            />
+            <TextField
+              label="Price"
+              name="price"
+              value={formData.price}
+              onChange={handleChange}
+              fullWidth
+              required
+              type="number"
+            />
+            <TextField
+              label="Category"
+              name="category"
+              value={formData.category}
+              onChange={handleChange}
+              fullWidth
+              required
+            />
+            <TextField
+              label="Description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              fullWidth
+              multiline
+              rows={3}
+            />
+          </Stack>
+        </DialogContent>
 
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button variant="contained" onClick={handleSubmit}>
-          {selectedProduct ? "Update" : "Add"}
-        </Button>
-      </DialogActions>
+        <DialogActions>
+          <Button onClick={onClose}>Cancel</Button>
+          <Button variant="contained" type="submit">
+            {selectedProduct ? "Update" : "Add"}
+          </Button>
+        </DialogActions>
+      </form>
     </Dialog>
   );
 };
