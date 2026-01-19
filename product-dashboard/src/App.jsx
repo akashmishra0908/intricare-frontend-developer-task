@@ -70,7 +70,8 @@ function App() {
         });
       } else {
         const res = await addProduct(product);
-        setProducts([...products, res.data]);
+        const newProduct = { ...res.data, id: Date.now() };
+        setProducts([...products, newProduct]);
 
         setSnackbar({
           open: true,
@@ -152,8 +153,11 @@ function App() {
           sx={{ mb: 2 }}
         >
           <MenuItem value="all">All</MenuItem>
-          <MenuItem value="men's clothing">Men's Clothing</MenuItem>
-          <MenuItem value="women's clothing">Women's Clothing</MenuItem>
+          {[...new Set(products.map((p) => p.category))].map((cat) => (
+            <MenuItem key={cat} value={cat}>
+              {cat}
+            </MenuItem>
+          ))}
         </TextField>
       </Stack>
       {loading && <CircularProgress />}
