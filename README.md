@@ -25,6 +25,10 @@
     - Delete products with instant UI updates
 
     - Client-side search (by title & category)
+     
+    - Sorting products (by price)
+    
+    - Pagination for efficient product browsing
 
     - Modal-based Add/Edit forms
 
